@@ -107,6 +107,11 @@ export default function ResultsScreen() {
       });
     });
 
+    socket.on('refreshApp', () => {
+      // Reload the current page
+      window.location.reload();
+    });
+
     socket.on('chatRequest', (data: ChatRequest) => {
       if (data.toUserId === userId) {
         setChatRequests(prevRequests => [...prevRequests, data]);
@@ -126,7 +131,7 @@ export default function ResultsScreen() {
 
     socket.on('closeChat', (data) => {
       if (data.toUserId === userId) {
-        Alert.alert('Chat dropped by the other thunker!');
+        Alert.alert('Chat dropped by the thunker.');
         setChatVisible(false);
         setSelectedUserId(null);
         selectedUserIdRef.current = null;
@@ -176,6 +181,7 @@ export default function ResultsScreen() {
     selectedUserIdRef.current = targetedId;
     setWaiting(true);
     setTimeout(() => {
+      Alert.alert('Chat request has not been accepted by the thunker.');
       setWaiting(false);
       setPendingRequests(prevRequests => prevRequests.filter(request => request.fromUserId !== userId || request.toUserId !== targetedId));
       socket.emit('chatStatus', { activeChats, pendingRequests });
@@ -225,7 +231,7 @@ export default function ResultsScreen() {
       <View style={styles.upper}>
         <Image source={require('../assets/images/thunkLogo.png')} style={styles.logo} />
         <View style={styles.headerWrapperINS}>
-          <ScrollView>
+          <ScrollView style={{paddingRight:20}}>
             <Text style={styles.instructions}>{query}</Text>
           </ScrollView>
           <Pressable onPress={handleEditThought} style={styles.editButton}>
@@ -248,10 +254,14 @@ export default function ResultsScreen() {
                   <View style={{ width: 20, height: 20, position: 'absolute', top: -2, left: 0, zIndex: -1 }}>
                     <Image source={require('../assets/images/ellipseVo.png')} resizeMode='contain' style={{ width: Math.round(stringSimilarity(`${query}`, `${item.query}`) * 50), height: Math.round(stringSimilarity(`${query}`, `${item.query}`) * 50) }} />
                   </View>
+                  <View style={{width: 100, height: 20, position: 'absolute',left:0,top:5}}>
+                  {(activeChats.includes(item.userId) || pendingRequests.some(request => request.fromUserId === item.userId || request.toUserId === item.userId)) && (
+                    <Text style={styles.busyText}>TIED</Text>
+                  )}
                 </View>
-                {(activeChats.includes(item.userId) || pendingRequests.some(request => request.fromUserId === item.userId || request.toUserId === item.userId)) && (
-                  <Text style={styles.busyText}>Busy</Text>
-                )}
+                </View>
+                
+                
               </Pressable>
             </View>
           }
@@ -259,30 +269,33 @@ export default function ResultsScreen() {
       </View>
       <Text style={styles.footer}>Powered by Team Thunks</Text>
       {waiting && <View style={styles.requestContainer}>
-        <View style={{ width: 200, height: 50, position: 'absolute', top: "50%", left: "50%" }}>
-          <Text style={styles.timerText}>Be Kind...</Text>
+        <View style={{ width: "100%", height: "100%", position: 'absolute', top: "50%", left: "40%" }}>
+          <Text style={styles.timerText}>Be Kind with your Thoughts Always...</Text>
         </View>
       </View>
       }
       {chatVisible && (
         <KeyboardAvoidingView behavior="padding" style={styles.chatBox}>
-          <View style={{flex:1}}>
-            <Text style={styles.instructions}>{query}</Text>
+          <View style={{ flex: 0.1, height: "20%", width: "100%", flexDirection: "row", justifyContent: "space-between", borderBottomColor: "grey", borderBottomWidth: 2 }}>
+            <ScrollView>
+              <Text style={styles.instructions}>{query}</Text>
+            </ScrollView>
             <Pressable onPress={handleCloseChatBox} style={styles.closeButton}>
-              <Image source={require('../assets/images/crosser.png')} style={{width: 20, height: 20 }} />
+              <Image source={require('../assets/images/crosser.png')} style={{ width: 20, height: 20 }} />
             </Pressable>
           </View>
-        
-          <FlatList
-            data={messages}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) =>
-              <View style={{ flex: 1, width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start' }}>
-                {item.userId !== userId ? <Text style={{ color: 'white', width: '100%', fontSize: 20, fontWeight: "bold", paddingVertical: 10, textAlign: "right" }}>↓ {item.text}</Text> :
-                  <Text style={{ color: 'grey', width: '100%', fontSize: 20, fontWeight: "bold", paddingVertical: 10, textAlign: "left" }}>{item.text} ↑</Text>}
-              </View>
-            }
-          />
+          <View style={{ width: "100%", flex: 0.9 }}>
+            <FlatList
+              data={messages}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) =>
+                <View style={{ flex: 1, width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start', alignContent: 'flex-start' }}>
+                  {item.userId !== userId ? <Text style={{ color: 'white', width: '100%', fontSize: 20, fontWeight: "bold", paddingVertical: 10, textAlign: "right" }}>↓ {item.text}</Text> :
+                    <Text style={{ color: 'grey', width: '100%', fontSize: 20, fontWeight: "bold", paddingVertical: 10, textAlign: "left" }}>{item.text} ↑</Text>}
+                </View>
+              }
+            />
+          </View>
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.input}
@@ -296,14 +309,17 @@ export default function ResultsScreen() {
               <Image source={require('../assets/images/send.png')} style={styles.send} />
             </Pressable>
           </View>
+          <View>
+            <Text>Chats are anonymous</Text>
+          </View>
         </KeyboardAvoidingView>
       )}
 
       {chatRequests.length > 0 && isRequestSent && (
         <View style={styles.requestContainer}>
           {chatRequests.map(request => (
-            <View key={request.fromUserId} style={{ position: "relative" }}>
-              <View style={styles.headerWrapperINS}>
+            <View key={request.fromUserId} style={{ position: "absolute",bottom:"20%" }}>
+              <View style={styles.headerWrapperINSCUST}>
                 <ScrollView>
                   <Text style={styles.instructions}>{request.thoughtText}</Text>
                 </ScrollView>
@@ -337,17 +353,18 @@ const styles = StyleSheet.create({
     width: 120,
     height: 50,
     position: 'absolute',
-    top: 60
+    top: 40
   },
   upper: { flex: 0.25, width: "100%" },
-  headerWrapperINSCUST:{width:"90%", height: "5%", flexDirection: "row", justifyContent: 'space-between', alignItems: 'flex-end', paddingVertical: 20, marginVertical: "auto", borderBottomColor: 'grey',position:"relative",
-  borderBottomWidth: 1},
+  headerWrapperINSCUST: {
+    height: "50%", flexDirection: "row", paddingVertical: 5
+  },
   headerWrapperINS: {
-    height: "50%", flexDirection: "row", justifyContent: 'center', alignItems: 'flex-end', paddingVertical: 20, marginTop: "auto", borderBottomColor: 'grey',
-    borderBottomWidth: 1
+    height: "50%", flexDirection: "row", justifyContent: 'center', alignItems: 'baseline', paddingVertical: 5, marginTop: "auto", borderBottomColor: 'grey',
+    borderBottomWidth: 1,position:"relative"
   },
   instructions: { color: 'white', fontSize: 20, fontWeight: 'bold', marginBottom: 10, marginTop: 10, textAlign: 'left' },
-  editButton: { paddingVertical: 20, paddingHorizontal: 10 },
+  editButton: { paddingVertical: 20, paddingHorizontal: 10,height: 100, position:"absolute",top:0 ,right:0},
   flatList: { flex: 0.7, width: '100%', marginBottom: 20 },
   textST: { flex: 0.9, textAlign: "left", width: "100%" },
   item: { color: 'white', fontSize: 18, width: "100%", },
@@ -356,7 +373,7 @@ const styles = StyleSheet.create({
   notificationBubble: { backgroundColor: 'red', borderRadius: 10, padding: 5 },
   notificationText: { color: 'white' },
   requestContainer: { position: 'absolute', width: "100%", height: "100%", padding: 20, borderRadius: 10, alignItems: 'center', backgroundColor: '#383838', zIndex: 2 },
-  timerText: { color: 'white', fontSize: 32, fontWeight: 'bold' },
+  timerText: { color: 'white', fontSize: 32, fontWeight: 'bold' ,width: "60%",lineHeight:50},
   declineButton: { position: "absolute", right: 0, bottom: 30 },
   input: {
     height: 50,
@@ -385,8 +402,10 @@ const styles = StyleSheet.create({
   },
   busyText: {
     fontSize: 14,
-    color: 'red',
+    fontWeight:"bold",
+    color: 'white',
     marginTop: 5,
+    marginLeft:5
   },
   thoughtText: {
     color: 'white',

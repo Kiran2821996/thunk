@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, Image, Pressable } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Text, Image, Pressable, KeyboardAvoidingView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -44,10 +44,11 @@ export default function InputScreen() {
         </MaskedView>
       </View>
       <Text style={styles.instructions}>Share a Thought to Find your Intellectual Twin.</Text>
+      <KeyboardAvoidingView  style={{width:"100%"}}>
       <View style={styles.inputWrapper}>
         <TextInput
           style={styles.input}
-          placeholder="Type something..."
+          placeholder="Your Thought please..."
           placeholderTextColor="#aaa"
           value={query}
           onChangeText={setQuery}
@@ -56,6 +57,8 @@ export default function InputScreen() {
           <Image source={require('../assets/images/send.png')} style={styles.send} />
         </Pressable>
       </View>
+      </KeyboardAvoidingView>
+      
     </View>
   );
 }
@@ -75,6 +78,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     left: 20,
+    zIndex:1
   },
   maskedContainer: {
     height: 180,
@@ -89,7 +93,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   maskedText: {
-    fontSize: 25,
+    fontSize: 26,
     color: 'black',
     fontWeight: 'bold',
   },
@@ -99,19 +103,19 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   instructions: {
-    fontSize: 14,
-    fontWeight: 'semibold',
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
     marginBottom: 20,
   },
   input: {
+    width:"100%",
     height: 50,
     borderWidth: 1,
-    fontSize: 12,
+    fontSize: 14,
     borderRadius: 8,
     marginBottom: 20,
-    width: '100%',
     paddingHorizontal: 10,
     color: '#fff',
     backgroundColor: '#383838',
@@ -123,11 +127,12 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     position: 'relative',
-    width: '80%',
+    width: '100%',
+    paddingHorizontal:"10%"
   },
   pressable: {
     position: 'absolute',
     top: "22%",
-    right: 8,
+    right:"15%",
   }
 });
