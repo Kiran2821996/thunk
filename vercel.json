@@ -1,14 +1,10 @@
-{
-    "buildCommand": "expo export -p web",
-    "outputDirectory": "dist",
-    "devCommand": "expo",
-    "cleanUrls": true,
-    "framework": null,
-    "rewrites": [
-      {
-        "source": "/:path*",
-        "destination": "/"
-      }
+
+  {
+    "builds": [
+      { "src": "web-build/**/*", "use": "@vercel/static" }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "/index.html" }
     ]
   }
   
