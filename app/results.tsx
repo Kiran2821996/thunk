@@ -181,7 +181,10 @@ export default function ResultsScreen() {
     selectedUserIdRef.current = targetedId;
     setWaiting(true);
     setTimeout(() => {
-      Alert.alert('Chat request has not been accepted by the thunker.');
+      if(chatVisible){
+        Alert.alert('Chat request has not been accepted by the thunker.');
+      }
+      
       setWaiting(false);
       setPendingRequests(prevRequests => prevRequests.filter(request => request.fromUserId !== userId || request.toUserId !== targetedId));
       socket.emit('chatStatus', { activeChats, pendingRequests });
@@ -310,7 +313,7 @@ export default function ResultsScreen() {
             </Pressable>
           </View>
           <View>
-            <Text>Chats are anonymous</Text>
+            <Text style={{color:"white",fontSize:14,fontWeight:700,paddingVertical:30}}>Chats are anonymous</Text>
           </View>
         </KeyboardAvoidingView>
       )}
@@ -360,7 +363,7 @@ const styles = StyleSheet.create({
     height: "50%", flexDirection: "row", paddingVertical: 5
   },
   headerWrapperINS: {
-    height: "50%", flexDirection: "row", justifyContent: 'center', alignItems: 'baseline', paddingVertical: 5, marginTop: "auto", borderBottomColor: 'grey',
+    height: 70, flexDirection: "row", justifyContent: 'center', alignItems: 'baseline', paddingVertical: 5, marginTop: "auto", borderBottomColor: 'grey',
     borderBottomWidth: 1,position:"relative"
   },
   instructions: { color: 'white', fontSize: 20, fontWeight: 'bold', marginBottom: 10, marginTop: 10, textAlign: 'left' },

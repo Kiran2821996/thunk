@@ -3,12 +3,13 @@ import { View, TextInput, Button, StyleSheet, Text, Image, Pressable, KeyboardAv
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import MaskedView from '@react-native-masked-view/masked-view';
+import uuid from 'react-native-uuid';
 import axios from 'axios';
 
 export default function InputScreen() {
   const [query, setQuery] = useState('');
   const router = useRouter();
-  const userId = `ThunkerID_${Date.now()}`; 
+  const userId = `ThunkerID_${uuid.v4()}`; 
 
   const handleSearch = async () => {
     try {
